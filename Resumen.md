@@ -243,8 +243,6 @@ Se aplican principalmente cuando:
 - El almacenamiento o el costo computacional de los métodos directos es alto.
 - Se desea **controlar el error** y limitar el número de operaciones.
 
----
-
 ## 🔸 Tipos de Métodos Iterativos
 
 - **Jacobi**
@@ -371,10 +369,6 @@ $$
 
 ---
 
-¡Perfecto! A continuación te presento la **Unidad 5 – Interpolación**, en formato Markdown, siguiendo exactamente la misma estructura clara y detallada que usaste para los sistemas lineales. La información está basada en **Chapra** y **Burden**, incluyendo fórmulas, propiedades, errores y comparativas donde corresponda.
-
----
-
 # Unidad 4 Interpolación
 
 ## 🔍 Objetivo
@@ -384,8 +378,6 @@ Dado un conjunto de puntos conocidos $(x_i, f(x_i))$, encontrar una función que
 - Estimar valores intermedios de una función.
 - Aproximar funciones complejas.
 - Base para derivación, integración y resolución de ecuaciones.
-
----
 
 ## 🔸 Tipos de Interpolación
 
@@ -541,12 +533,6 @@ $$
 | **Lineal**        | Por tramos | ✅           | Media     | Alta        | Muy simple, baja continuidad                  |
 | **Cuadrático**    | Por tramos | ✅           | Mejor     | Alta        | Aumenta suavidad y precisión                  |
 | **Spline cúbico** | Por tramos | ✅           | Muy alta  | Muy alta    | Suave en derivadas, requiere resolver sistema |
-
----
-
-¿Querés que prepare también la parte de **nodos de Chebyshev**, o pasamos directamente a derivación numérica?
-
-¡Perfecto! Continuamos con la **Unidad 6 – Integración Numérica**, en el mismo estilo que tus apuntes anteriores: bien estructurado, con fórmulas claras, ventajas, errores, complejidad, y contenido basado en **Chapra** y **Burden**.
 
 ---
 
