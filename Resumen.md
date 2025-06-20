@@ -750,10 +750,10 @@ $$
 
 | Método                 | **Fórmula del Método**                                                                                                                                                 | **Fórmula del Error Teórico**                                   | **Orden** |
 | ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- | --------- |
-| **$Trapecio$**    | $\frac{b-a}{2} \left[f(a) + f(b)\right]$                                                                                       | $\displaystyle E_T = -\frac{(b - a)^3}{12} f''(\xi)$            | $O(h^2)$  |
-| **$Simpson$**     | $\frac{b-a}{6} \left[f(a) + 4f\left(\frac{a+b}{2}\right) + f(b)\right]$                                                        | $\displaystyle E_S = -\frac{(b - a)^5}{2880} f^{(4)}(\xi)$      | $O(h^4)$  |
-| **$Trapecio_C$** | $\frac{h}{2} \left[ f(x_0) + 2\sum_{i=1}^{n-1} f(x_i) + f(x_n) \right]$                                 | $\displaystyle E_{T_c} = -\frac{(b - a) h^2}{12} f''(\xi)$      | $O(h^2)$  |
-| **$Simpson_C$**  | $\frac{h}{3} \left[ f(x_0) + 4\sum_{i=1,\,\text{impar}}^{n-1} f(x_i) + 2\sum_{i=2,\,\text{par}}^{n-2} f(x_i) + f(x_n) \right]$ | $\displaystyle E_{S_c} = -\frac{(b - a) h^4}{180} f^{(4)}(\xi)$ | $O(h^4)$  |
+| **$Trapecio$**    | $\frac{b-a}{2} \left[f(a) + f(b)\right]$                                                                                       | $\displaystyle E_T = \frac{(b - a)^3}{12} f''(\xi)$            | $O(h^2)$  |
+| **$Simpson$**     | $\frac{b-a}{6} \left[f(a) + 4f\left(\frac{a+b}{2}\right) + f(b)\right]$                                                        | $\displaystyle E_S = \frac{(b - a)^5}{2880} f^{(4)}(\xi)$      | $O(h^4)$  |
+| **$Trapecio_C$** | $\frac{h}{2} \left[ f(x_0) + 2\sum_{i=1}^{n-1} f(x_i) + f(x_n) \right]$                                 | $\displaystyle E_{T_c} = \frac{(b - a) h^2}{12} f''(\xi)$      | $O(h^2)$  |
+| **$Simpson_C$**  | $\frac{h}{3} \left[ f(x_0) + 4\sum f(x_i) + 2\sum f(x_i) + f(x_n) \right]$ | $\displaystyle E_{S_c} = \frac{(b - a) h^4}{180} f^{(4)}(\xi)$ | $O(h^4)$  |
 
 Aclaracion: $h = \dfrac{b-a}{n}$
 Observaciones: 
