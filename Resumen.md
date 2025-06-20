@@ -17,23 +17,19 @@ donde $A \in \mathbb{R}^{n \times n}$, $x$ es el vector incógnita y $b$ el vect
 
 ## 🔸 Tipos de Métodos
 
----
-
 ### 1. **Métodos Directos**
 
 Son aquellos que nos conducirían a la solución exacta luego de un número finito de operaciones elementales, si no hubiera errores de redondeo
 
-### 🟢 **Eliminación de Gauss (o Reducción Gaussiana) $O(n^3)$**
+### 🟢 **Eliminación de Gauss**
 
 #### 🔍 Objetivo
 
 Transforma el sistema en forma escalonada superior usando operaciones elementales a la matriz ampliada (modifica b) y luego se resuelve con **sustitución hacia atrás**.
 
-Además, puede incluir **pivoteo parcial** para mejorar estabilidad numérica.
-
 **Errores comunes:**
 
-- El error de redondeo se acumula en cada paso, especialmente sin pivoteo.
+- El error de redondeo se acumula en cada paso.
 - Matrices mal condicionadas pueden amplificar errores.
 
 ### 💡 Ventajas
@@ -58,7 +54,7 @@ Además, puede incluir **pivoteo parcial** para mejorar estabilidad numérica.
 
 ---
 
-### 🟢 **Factorización LU** $O(n^3)$
+### 🟢 **Factorización LU**
 
 #### 🔍 Objetivo
 
@@ -73,7 +69,7 @@ Descompone $A = L \cdot U$, donde $A$ debe ser **no singular**, y para LU sin pi
 - Útil para resolver muchos sistemas con la misma matriz $A$ y distintos vectores $b$.
 - Se puede calcular $|A| = |L.U| = |U|$
 - Cálculo de $A^{-1}$ usando como b las columnas canónicas
-- Se puede combinar con **pivoteo parcial** para mayor estabilidad:
+- Se puede combinar con **pivoteo parcial escalado** para mayor estabilidad
 
 ### 💻 Complejidad
 
@@ -84,10 +80,9 @@ Descompone $A = L \cdot U$, donde $A$ debe ser **no singular**, y para LU sin pi
 
 ### **Pivoteo parcial**
 
-- Consiste en, en cada paso de la eliminación de Gauss, buscar en la columna actual el elemento con mayor valor absoluto con el objetivo de evitar divisiones por números muy pequeños (o $0$) que aumentan errores de redondeo. **entre las filas restantes** (desde la fila pivote hacia abajo) e inicializar un vector $P$.
-
+- Consiste en, en cada paso de la eliminación de Gauss, buscar en la columna actual **entre las filas restantes** (desde la fila pivote hacia abajo) el elemento con mayor valor absoluto con el objetivo de evitar divisiones por números muy pequeños (o $0$) de tal forma que los multiplicadores $|m_{ik}| \leq 1$, evitando aumentar errores de redondeo.
 - **Vector $P$ (permutaciones):**
-  Registra el orden actual de las filas luego de los intercambios durante la eliminación. Inicialmente, $P = [1, 2, ..., n]$. Cada vez que se intercambian filas $i$ y $k$, se intercambian también $P_i \leftrightarrow P_k$. Útil para mantener la correspondencia entre filas originales y filas actuales, sin mover físicamente toda la matriz (optimización).
+  Registra el orden actual de las filas luego de los intercambios durante la eliminación. Inicialmente, $P = [1, 2, ..., n]^t$. Cada vez que se intercambian filas $i$ y $k$, se intercambian también $P_i \leftrightarrow P_k$. Útil para mantener la correspondencia entre filas originales y filas actuales, sin mover físicamente toda la matriz (optimización).
 
 ### **Escalamiento Implicito**
 
@@ -100,7 +95,7 @@ $$
 S_i = \max_{1 \leq j \leq n} |a_{ij}|
 $$
 
-- Al elegir el pivote, no se mira solo el valor absoluto del elemento de la columna $k$, sino el cociente: $ c*i = \frac{|a*{ik}|}{S_i} $ haciendo una comparación justa y relativa
+- Al elegir el pivote, no se mira solo el valor absoluto del elemento de la columna $k$, sino el cociente: $ ck =\max{1 \leq j \leq n} \frac{|a\_{ij}^k| }{S_i} $ haciendo una comparación justa y relativa
 
 ### ⚙️ Funcionamiento resumido del ppe:
 
@@ -118,6 +113,14 @@ $$
 - El vector $P$ facilita reconstruir la solución o aplicar permutaciones posteriores sin perder datos.
 
 ---
+
+### 🟢 Metodo de Gauss Jordan
+
+Es similar al método de Gauss, la diferencia es que se diagonaliza la matriz
+
+Al finalizar el algoritmo tenemos $𝑥 = b^n$
+
+Desventaja: Costo aumenta en 50%
 
 ### 🟢 Descomposición de Cholesky
 
@@ -155,14 +158,15 @@ $$
 #### 🟦 Debajo de la diagonal ($i > j$):
 
 $$
-\ell_{ij} = \frac{1}{\ell_{jj}} \left( a_{ij} - \sum_{k=1}^{j-1} \ell_{ik} \ell_{jk} \right)
+\ell_{ji} = \frac{1}{\ell_{ii}} \left( a_{ji} - \sum_{k=1}^{i-1} \ell_{jk} \ell_{ik} \right)
 $$
 
 ### 💡 Ventajas
 
 - Es **más eficiente** y **más estable** que la LU tradicional si se cumplen las condiciones.
 - Requiere casi la **mitad del trabajo** que LU.
-- Ideal para problemas de ingeniería con matrices simétricas dispersas.
+- No necesita pivoteo
+- Ideal para matrices simétricas dispersas.
 
 ### 💻 Complejidad
 
@@ -187,7 +191,7 @@ $$
 
 #### Descomposición
 
-Para $k = 2$ hasta $n$: $e_k = \frac{e_k}{f_{k-1}}$; $f*k = f_k - e_k \cdot g*{k-1} $
+Para $k = 2$ hasta $n$: $e_k = \frac{e_k}{f_{k-1}}$; $f_k = f_k - e_k \cdot g_{k-1} $
 
 #### Sustitución hacia adelante
 
@@ -196,7 +200,7 @@ Para $k = 2$ hasta $n$: $r*k = r_k - e_k \cdot r*{k-1} $
 #### Sustitución hacia atrás
 
 $x_n = \frac{r_n}{f_n}$ \
-Para $k = n-1$ hasta $1, -1$ : $x*k = \frac{r_k - g_k \cdot x*{k+1}}{f_k} $
+Para $k = n-1$ hasta $1, -1$ : $x_k = \frac{r_k - g_k \cdot x_{k+1}}{f_k} $
 
 Es una forma optimizada de **eliminación de Gauss** que aprovecha la estructura tridiagonal para:
 
@@ -227,21 +231,25 @@ Es una forma optimizada de **eliminación de Gauss** que aprovecha la estructura
 
 ---
 
-# Métodos Iterativos para Sistemas de Ecuaciones Lineales
+### 2. Metodos iterativos
 
 ## 🔍 Objetivo
 
-Resolver sistemas lineales $A x = b$ mediante **aproximaciones sucesivas**, comenzando con una estimación inicial $x^{(0)}$, y refinando la solución en cada iteración:
+Resolver sistemas lineales $A x = b$ mediante **aproximaciones sucesivas**, comenzando con una estimación inicial $x^{(0)}$, que en principio convergen a la solucion x:
 
 $$
-x^{(k+1)} = G(x^{(k)})
+x^{(k+1)} = B(x^{(k)}) + C
 $$
 
-Se aplican principalmente cuando:
+B se llama matriz de iteración, es una generalización del método de punto fijo.
 
-- El sistema es de **gran tamaño** o **disperso (sparse)**.
-- El almacenamiento o el costo computacional de los métodos directos es alto.
-- Se desea **controlar el error** y limitar el número de operaciones.
+Se aplican principalmente cuando el sistema es de **gran tamaño** o **disperso (sparse)**.
+
+### 💡 Ventajas respecto a los metodos directos
+
+- Número de operaciones
+- Posiciones de memoria
+- Errores de redondeo
 
 ## 🔸 Tipos de Métodos Iterativos
 
@@ -265,28 +273,21 @@ $$
 x_i^{(k+1)} = \frac{1}{a_{ii}} \left( b_i - \sum_{j \neq i} a_{ij} x_j^{(k)} \right)
 $$
 
-> Cada componente se calcula **usando solo valores de la iteración anterior**.
+> Cada componente se calcula **usando solo valores de la iteración anterior** $\rightarrow$ Aproximaciones simultaneas.
 
 ### 💡 Ventajas
 
 - Muy sencillo de implementar.
 - Fácil de paralelizar (cada ecuación es independiente de las demás en cada iteración).
-- Útil para obtener una estimación preliminar.
 
 ### ⚠️ Requisitos
 
-- A debe ser **diagonalmente dominante** o **symmetric positive definite** para asegurar convergencia.
 - La matriz no debe tener ceros en la diagonal.
 
 ### 💻 Complejidad
 
 - Cada iteración: $O(n^2)$
 - Número de iteraciones depende de la convergencia (condición del sistema).
-
-### 📉 Errores y convergencia
-
-- La convergencia está garantizada si la **norma del operador iterativo $G$** es menor que 1.
-- El método **no asegura convergencia** para cualquier matriz.
 
 ---
 
@@ -308,7 +309,6 @@ $$
 
 ### ⚠️ Requisitos
 
-- Converge si A es **simétrica definida positiva** o **diagonalmente dominante**.
 - No siempre converge si A tiene mala condición.
 
 ### 💻 Complejidad
@@ -324,6 +324,8 @@ $$
 ---
 
 ## 🟢 Método SOR (Relajación Sucesiva)
+
+Este método usa un factor de ponderación para mejorar el valor calculado.
 
 ### 🔧 Ecuación iterativa
 
@@ -344,7 +346,6 @@ $$
 
 ### ⚠️ Requisitos
 
-- Mismo que Gauss-Seidel + elegir adecuadamente $\omega$
 - Requiere prueba empírica o análisis para encontrar el $\omega$ óptimo.
 
 ### 💻 Complejidad
@@ -357,15 +358,49 @@ $$
 - En muchos problemas prácticos, un $\omega \in [1.1, 1.5]$ acelera fuertemente la convergencia.
 - Chapra sugiere experimentar con distintos valores y observar el número de iteraciones requeridas.
 
----
-
 ## 📌 Comparativa final de métodos iterativos
 
-| Método           | Requisitos para convergencia        | Convergencia | Paralelización | Velocidad relativa | Notas clave                          |
-| ---------------- | ----------------------------------- | ------------ | -------------- | ------------------ | ------------------------------------ |
-| **Jacobi**       | Diagonal dominante o simétrica p.d. | Lenta        | Muy fácil      | 🟡 Lenta           | Simple, pero puede diverger          |
-| **Gauss-Seidel** | Diagonal dominante o simétrica p.d. | Rápida       | Difícil        | 🟢 Media           | Usa valores actualizados al instante |
-| **SOR**          | Idem + $\omega$ adecuado            | Muy rápida   | Difícil        | 🟢🟢 Rápida        | Acelera G-S si $\omega$ bien elegido |
+| Método           | Requisitos para convergencia                      | Convergencia | Paralelización | Velocidad relativa | Notas clave                          |
+| ---------------- | ------------------------------------------------- | ------------ | -------------- | ------------------ | ------------------------------------ |
+| **Jacobi**       | Diagonal dominante                                | Lenta        | Muy fácil      | 🟡 Lenta           | Simple, pero puede diverger          |
+| **Gauss-Seidel** | Diagonal dominante, simétrica y definida positiva | Rápida       | Difícil        | 🟢 Media           | Usa valores actualizados al instante |
+| **SOR**          | Idem + $\omega$ adecuado                          | Muy rápida   | Difícil        | 🟢🟢 Rápida        | Acelera G-S si $\omega$ bien elegido |
+
+---
+
+## Número de condición
+
+$K(A) = ||A|| \cdot ||A^{-1}||$
+
+- Es un medida cuantitativa del grado de mal condicionamiento de la matriz de coeficientes. Mide cuan cerca está una matriz de ser singular
+- Se usa para calcular como afectan los errores relativos en A y/o b el cálculo de x.
+- Si A y b tienen t cifras significativas y κ(A) es de un orden 10 s entonces la precisión del resultado será 10 s-t
+- Se puede demostrar que:
+
+  $$\frac {||\delta x||} {||x||} \le K(A) \frac {||\delta b||}{||b||} $$
+  $$\frac {||\delta x||} {||x + \delta x||} \le K(A) \frac {||\delta A||}{||A||} $$
+
+Wilkinson estudió el efecto del redondeo en el método de Eliminación de Gauss, considerando la triangulación con pivoteo y la solución de los dos sistemas triangulares, concluyendo que es un proceso muy estable, considerando que la matriz A no sea mal condicionada.
+
+Una forma de chequear esto es controlando los elementos
+de U, si crecen mucho es una señal de mala condición de
+la misma
+
+¿Cómo afecta el numero de condicion a los tipos de métodos?
+
+- En **métodos directos**, el mal condicionamiento afecta la **exactitud** de la solución.
+- En **métodos iterativos**, el mal condicionamiento afecta la **eficiencia y convergencia** del proceso.
+
+## Comparación entre metodos directos e iterativos
+
+|                                 | **Métodos Directos**           | **Métodos Iterativos**                                               |
+| ------------------------------- | ------------------------------ | -------------------------------------------------------------------- |
+| **Tiempo de ejecución**         | $\mathcal{O}(n^3)$             | $O(n^2 \times iteraciones)$                                          |
+| **Almacenamiento**              | $n \times n$ (matriz completa) | $n$ (solo vectores y diagonales)                                     |
+| **Errores de redondeo**         | Grandes                        | Despreciables (menos acumulativos)                                   |
+| **Tiempo de ejecución (total)** | Finito (se conoce a priori)    | Indeterminado (depende de la convergencia)                           |
+| **Tareas adicionales (TI)**     | "Barato"                       | "Caro" (más iteraciones o ajustes)                                   |
+| **Aplicaciones típicas**        | Problemas generales            | Problemas específicos (matrices sparse, diagonales dominantes, etc.) |
 
 ---
 
