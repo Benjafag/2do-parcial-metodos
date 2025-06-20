@@ -408,26 +408,41 @@ la misma
 
 ## 🔍 Objetivo
 
+
+Gran parte de las aproximaciones realizadas en Análisis Numérico consisten en aproximar una función $f(x)$ desconocida, mediante una cierta función $g(x)$, que se obtiene como combinación de funciones, partiendo de alguna clase de funciones conocidas.
+
+Existen distintos criterios para elegir los coeficientes, dando lugar a distintos tipos de aproximación:
+- Aproximaciones exactas o por interpolación
+- Aproximaciones por mínimos cuadrados
+- Aproximaciones de error mínimo - máximo
+
+
 Dado un conjunto de puntos conocidos $(x_i, f(x_i))$, encontrar una función que pase exactamente por ellos. La **interpolación** permite:
 
 - Estimar valores intermedios de una función.
 - Aproximar funciones complejas.
 - Base para derivación, integración y resolución de ecuaciones.
 
+
+Familias de Funciones Bases: 
+* Monomios
+* Trigonometricas
+* Splines (o a trozos)
+* Exponenciales
+
 ## 🔸 Tipos de Interpolación
 
 - **Interpolación Polinómica** (global)
 - **Interpolación por tramos (Spline)**
-- **Interpolación lineal y cuadrática simple**
 - **Interpolación de Newton / Lagrange**
 
 ---
 
 ## 🟢 Interpolación Polinómica
 
-### 🔧 Forma general
 
-Dado $n+1$ puntos, existe un único polinomio de grado ≤ $n$ que los interpola:
+### 🔧 Forma general
+Los polinomios son muy utilizados por su estabilidad. Dados $n+1$ puntos, existe un único polinomio de grado ≤ $n$ que los interpola:
 
 $$
 P_n(x) = a_0 + a_1 x + a_2 x^2 + \dots + a_n x^n
@@ -443,7 +458,7 @@ El sistema se puede construir y resolver usando:
 
 - Para muchos puntos ($n$ grande), el polinomio oscila fuertemente (**Fenómeno de Runge**).
 - Poca estabilidad numérica si los puntos están muy cerca.
-- Mejor usar interpolación por tramos o nodos Chebyshev.
+- Mejor usar interpolación por tramos.
 
 ---
 
@@ -464,17 +479,30 @@ $$
 ### 💡 Ventajas
 
 - No requiere resolver sistemas.
-- Forma explícita del polinomio.
 
 ### ⚠️ Desventajas
 
 - Requiere recalcular todo si se añade un nuevo punto.
 - No se reutiliza cálculo.
+- Para estimar el error se requiere la derivada de orden $n+1$
+- No es fácil de utilizar en problemas de integración o diferenciación
+
+### 💻 Complejidad
+
+- Costo de $O(n^2)$
+
+### 📉 Errores en la Interpolación
+
+$$
+f(x) - P_n(x) = \frac{f^{(n+1)}(\xi)}{(n+1)!} \prod_{i=0}^{n}(x - x_i)
+$$
+
+- Crece con el número de nodos si no son bien distribuidos
 
 ---
 
 ## 🟢 Forma de Newton (Diferencias Divididas)
-
+La idea en este metodo es poder recalcular $P_n(x)$ reutilizando $P_{n-1}(x)$, es decir agregandole un termino de corrección $C(x)$ de grado $n$
 ### 🔧 Forma general
 
 $$
@@ -496,38 +524,57 @@ $$
 - Reutilizable si se agregan puntos.
 - Útil para tabulación incremental.
 
+### ⚠️ Desventajas, tipos de error:
+#### Redondeo
+- Datos: Si los valores dados están aproximados (por mediciones o cálculos previos), arrastran errores
+- Coeficientes: Cada diferencia dividida se calcula con restas y divisiones, que son muy sensibles a errores (sobre todo si los  $x_i$ están cerca). Esto puede amplificar los errores de redondeo incluso si los datos eran buenos.
+- Aproximación: Al evaluar $P_n(x)$ para cierto valor de x, se hacen productos acumulativos como $(x-x_0)(x-x_1)\dots$ y cada operación puede introducir pequeños errores que se acumulan.
+#### Truncamiento:
+Este es el error teórico que aparece incluso sin redondeos. Representa cuánto se aleja el polinomio $P_n(x)$ de la función real $f(x)$
+
+
+### 💻 Complejidad
+
+- Costo de $O(n^2)$
+
+### 📉 Errores en la Interpolación: Regla del término siguiente
+
+$$
+e_n = f[x_0,x_1,\dots,x_n,x_{n+1}](x-x_0)(x-x_1)...(x-x_n)
+$$
+
+- Crece con el número de nodos si no son bien distribuidos
+
 ---
+## 🟢 Interpolación Polinómica Segmentaria
 
-## 🟢 Interpolación Lineal y Cuadrática
+Dados $n+1$ puntos $(x_0,y_0),(x_1,y_1),\dots,(x_n,y_n)$ con $ x_0\le x_1\le \dots \le x_n $ una función spline de orden k (k-Spline) sobre dichos puntos es una función S que verifica:
 
-### 🔧 Interpolación lineal
+a. $S(x)=q_k(x)$ polinomio de grado $\le k$, $x\in[x_k,x_{k+1}]$,
 
-Usa dos puntos para construir una recta:
+b. $S(x_k) = y_k$
 
-$$
-f(x) \approx f(x_0) + \frac{f(x_1) - f(x_0)}{x_1 - x_0}(x - x_0)
-$$
+c. $S \in C^{k-1} [x_i,x_{i+1}]$
 
-### 🔧 Interpolación cuadrática
 
-Usa tres puntos para un polinomio de grado 2:
+### 💹 Cubic Spline
 
-$$
-P_2(x) = a_0 + a_1(x - x_0) + a_2(x - x_0)(x - x_1)
-$$
+Sea $ f(x): [a,b] \to \mathbb{R} $ y sean $ \{x_i\} $, $ i = 0,\dots,n $, $ n+1 $ puntos distintos en $[a,b]$, con $ a = x_0 < x_1 < x_2 < \dots < x_n = b $.
 
-Usando diferencias divididas.
+- **a)** En cada intervalo $ [x_i, x_{i+1}] $, $ S $ es un polinomio cúbico denotado por $ S_i(x) $.
+- **b)** $ S_i(x_i) = f(x_i) $, para $ i = 0,\dots,n $
+- **c)** $ S_{i+1}(x_{i+1}) = S_i(x_{i+1}) $
+- **d)** $ S'_{i+1}(x_{i+1}) = S'_i(x_{i+1}) $
+- **e)** $ S''_{i+1}(x_{i+1}) = S''_i(x_{i+1}) $
+- **f)** Se satisface alguna de las siguientes condiciones de frontera:
+  - $ S''(x_0) = S''(x_n) = 0 $ &nbsp; _(frontera libre o natural)_
+  - $ S'(x_0) = f'(x_0) $ y $ S'(x_n) = f'(x_n) $ &nbsp; _(frontera sujeta)_
 
----
-
-## 🟢 Splines (Interpolación por Tramos)
 
 ### 🔧 Objetivo
 
-Construir polinomios de bajo grado (generalmente cúbicos) en cada intervalo $[x_i, x_{i+1}]$, garantizando **suavidad**:
+Construir polinomios cúbicos en cada intervalo $[x_i, x_{i+1}]$, garantizando **suavidad**: Continua en primera y segunda derivada.
 
-- Continúa en primera y segunda derivada
-- Evita oscilaciones del polinomio global
 
 ### 📐 Spline cúbico natural
 
@@ -537,25 +584,10 @@ Construir polinomios de bajo grado (generalmente cúbicos) en cada intervalo $[x
 ### 💡 Ventajas
 
 - Alta precisión y suavidad
-- Muy usado en gráficos, ingeniería y simulaciones
+- Evita oscilaciones del polinomio global
 
----
-
-## 📉 Errores en la Interpolación
-
-### 🔺 Error en interpolación polinómica (forma de Newton):
-
-$$
-f(x) - P_n(x) = \frac{f^{(n+1)}(\xi)}{(n+1)!} \prod_{i=0}^{n}(x - x_i)
-$$
-
-- Depende de derivada de orden $n+1$
-- Crece con el número de nodos si no son bien distribuidos
-
-### 🧠 Recomendación (Burden/Chapra)
-
-- Usar **splines o polinomios de bajo grado por tramos** para alta precisión
-- Evitar polinomios globales de grado alto
+### 📉 Error 
+Al usar una spline natural para interpolar una función $f(x)$, el error es  proporcional a $h^4$ con $h = |x_i-x_{i+1}|$
 
 ---
 
