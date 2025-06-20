@@ -31,6 +31,8 @@ Transforma el sistema en forma escalonada superior usando operaciones elementale
 
 - El error de redondeo se acumula en cada paso.
 - Matrices mal condicionadas pueden amplificar errores.
+- Sin pivoteo, puede fallar o generar grandes errores numéricos si hay ceros o valores muy pequeños en la diagonal.
+
 
 ### 💡 Ventajas
 
@@ -44,7 +46,6 @@ Transforma el sistema en forma escalonada superior usando operaciones elementale
 ### ⚠️ Requisitos
 
 - La matriz debe ser **no singular**.
-- Sin pivoteo, puede fallar o generar grandes errores numéricos si hay ceros o valores muy pequeños en la diagonal.
 
 ### 💻 Complejidad
 
@@ -80,7 +81,7 @@ Descompone $A = L \cdot U$, donde $A$ debe ser **no singular**, y para LU sin pi
 
 ### **Pivoteo parcial**
 
-- Consiste en, en cada paso de la eliminación de Gauss, buscar en la columna actual **entre las filas restantes** (desde la fila pivote hacia abajo) el elemento con mayor valor absoluto con el objetivo de evitar divisiones por números muy pequeños (o $0$) de tal forma que los multiplicadores $|m_{ik}| \leq 1$, evitando aumentar errores de redondeo.
+- Wilkinson propuso que; en cada paso de la eliminación de Gauss, buscar en la columna actual **entre las filas restantes** (desde la fila pivote hacia abajo)  el elemento con mayor valor absoluto y elegirlo como pivot, con el objetivo de evitar divisiones por números muy pequeños (o $0$) de tal forma que los multiplicadores $|m_{ik}| \leq 1$, evitando aumentar errores de redondeo.
 - **Vector $P$ (permutaciones):**
   Registra el orden actual de las filas luego de los intercambios durante la eliminación. Inicialmente, $P = [1, 2, ..., n]^t$. Cada vez que se intercambian filas $i$ y $k$, se intercambian también $P_i \leftrightarrow P_k$. Útil para mantener la correspondencia entre filas originales y filas actuales, sin mover físicamente toda la matriz (optimización).
 
@@ -95,12 +96,12 @@ $$
 S_i = \max_{1 \leq j \leq n} |a_{ij}|
 $$
 
-- Al elegir el pivote, no se mira solo el valor absoluto del elemento de la columna $k$, sino el cociente: $ ck =\max{1 \leq j \leq n} \frac{|a\_{ij}^k| }{S_i} $ haciendo una comparación justa y relativa
+- Al elegir el pivote, no se mira solo el valor absoluto del elemento de la columna $k$, sino el cociente: $ c_k =\max{1 \leq j \leq n} \frac{|a_{ij}^k| }{S_i} $ haciendo una comparación justa y relativa
 
 ### ⚙️ Funcionamiento resumido del ppe:
 
 1. Se calcula $S$ antes de comenzar la eliminación y $P$ se inicializa desde 1 hasya n.
-2. En cada paso $k$, para elegir fila pivote $p$, se evalúa: $ c*i = \frac{|a*{ik}|}{S_i}$
+2. En cada paso $k$, para elegir fila pivote $p$, se evalúa: $ c_i = \frac{|a_{ik}|}{S_i}$
 
 3. Se intercambian filas $k$ y $p$ tanto en la matriz como en $P$.
 4. Se continúa con la eliminación habitual.
@@ -195,11 +196,11 @@ Para $k = 2$ hasta $n$: $e_k = \frac{e_k}{f_{k-1}}$; $f_k = f_k - e_k \cdot g_{k
 
 #### Sustitución hacia adelante
 
-Para $k = 2$ hasta $n$: $r*k = r_k - e_k \cdot r*{k-1} $
+Para $k = 2$ hasta $n$: $r_k = r_k - e_k \cdot r_{k-1} $
 
 #### Sustitución hacia atrás
 
-$x_n = \frac{r_n}{f_n}$ \
+$x_n = {r_n}/{f_n}$ \
 Para $k = n-1$ hasta $1, -1$ : $x_k = \frac{r_k - g_k \cdot x_{k+1}}{f_k} $
 
 Es una forma optimizada de **eliminación de Gauss** que aprovecha la estructura tridiagonal para:
@@ -404,7 +405,7 @@ la misma
 
 ---
 
-# Unidad 4 Interpolación
+# Unidad 4 - Interpolación
 
 ## 🔍 Objetivo
 
@@ -522,14 +523,13 @@ $$
 ### 💡 Ventajas
 
 - Reutilizable si se agregan puntos.
-- Útil para tabulación incremental.
 
 ### ⚠️ Desventajas, tipos de error:
 #### Redondeo
 - Datos: Si los valores dados están aproximados (por mediciones o cálculos previos), arrastran errores
 - Coeficientes: Cada diferencia dividida se calcula con restas y divisiones, que son muy sensibles a errores (sobre todo si los  $x_i$ están cerca). Esto puede amplificar los errores de redondeo incluso si los datos eran buenos.
 - Aproximación: Al evaluar $P_n(x)$ para cierto valor de x, se hacen productos acumulativos como $(x-x_0)(x-x_1)\dots$ y cada operación puede introducir pequeños errores que se acumulan.
-#### Truncamiento:
+#### Truncamiento
 Este es el error teórico que aparece incluso sin redondeos. Representa cuánto se aleja el polinomio $P_n(x)$ de la función real $f(x)$
 
 
@@ -597,8 +597,6 @@ Al usar una spline natural para interpolar una función $f(x)$, el error es  pro
 | ----------------- | ---------- | ------------ | --------- | ----------- | --------------------------------------------- |
 | **Lagrange**      | Global     | ❌           | Alta      | Baja        | No se puede agregar puntos fácilmente         |
 | **Newton DD**     | Global     | ✅           | Alta      | Media       | Buen desempeño incremental                    |
-| **Lineal**        | Por tramos | ✅           | Media     | Alta        | Muy simple, baja continuidad                  |
-| **Cuadrático**    | Por tramos | ✅           | Mejor     | Alta        | Aumenta suavidad y precisión                  |
 | **Spline cúbico** | Por tramos | ✅           | Muy alta  | Muy alta    | Suave en derivadas, requiere resolver sistema |
 
 ---
@@ -607,7 +605,7 @@ Al usar una spline natural para interpolar una función $f(x)$, el error es  pro
 
 ## 🔍 Objetivo
 
-Aproximar integrales definidas de la forma:
+Aproximar mediante una familia de funciones {$f_n(x), n\ge1$} que aproxime a $f(x)$ integrales definidas de la forma:
 
 $$
 I = \int_a^b f(x)\,dx
@@ -619,50 +617,83 @@ cuando:
 - Solo se conoce $f(x)$ en puntos discretos
 - Se desea una solución aproximada con control del error
 
+Usaremos **polinomios** como funciones de aproximacion 
+
+### Considerando forma de Lagrange
+
+$$
+\int_a^b f(x)\, dx \cong \int_a^b  \sum_{i=0}^{n} f(x_i) \cdot l_i(x)  dx 
+= \sum_{i=0}^{n} f(x_i) \int_a^b l_i(x)\, dx
+$$
+
+
+### **Suma de Cuadratura:**
+
+$$
+In(f) = \sum_{i=0}^{n} \alpha_i f(x_i), \quad x_i \in [a, b] \quad \forall i
+$$
+
+- $ \alpha_i $: coeficientes de cuadratura $ \left( \int_a^b l_i(x) \, dx \right) $
+- $ x_i $: nodos de cuadratura
+
 ---
 
 ## 🔸 Tipos de Métodos
 
-1. **Reglas de Newton-Cotes (puntos equiespaciados):**
+1. **Reglas de Newton-Cotes**
+Basados en interpolar $f(x)$ en puntos **equiespaciados** con un polinomio de grado $n$, y luego integrar ese polinomio.
 
+* **Cerradas**: incluyen los extremos $a$ y $b$ como nodos
    - Regla del rectángulo
    - Regla del trapecio
-   - Regla de Simpson (1/3 y 3/8)
+   - Regla de Simpson
+* **Abiertas**: no incluyen $a$ ni $b$; usadas para integrales impropias o E.D.O.
+Estas fórmulas, en general no dan buenos resultados si [a,b] es grande
 
-2. **Reglas compuestas:** aplican las anteriores por subintervalos
-
+2. **Reglas compuestas:** aplican las anteriores por subintervalos y aplican la regla en cada tramo
 3. **Cuadratura Gaussiana:** nodos y pesos óptimos
 
 ---
 
-## 🟢 Regla del Trapecio
+### 🟢 Regla del Rectángulo (orden 0)
+
+$$
+I \approx (b - a) \cdot f(a)
+$$
+
+🔹 **Error**:
+
+$$
+E = -\frac{(b-a)^2}{2} f'(\eta),\quad \eta \in (a, b)
+$$
+
+---
+
+### 🟢 Regla del Trapecio (orden 1)
 
 ### 🔧 Aproximación
 
 Se interpola una recta entre $(a, f(a))$ y $(b, f(b))$:
 
 $$
-\int_a^b f(x)\,dx \approx \frac{b-a}{2} [f(a) + f(b)]
+I \approx \frac{b - a}{2} \left[f(a) + f(b)\right]
 $$
+
+🔹 **Error**:
+
+$$
+E_T = -\frac{(b-a)^3}{12} f''(\eta)
+$$
+
 
 ### 💡 Ventajas
-
 - Simple de implementar
 - Útil para funciones lineales o suavemente curvadas
-
-### ⚠️ Error
-
-$$
-E_T = -\frac{(b-a)^3}{12} f''(\xi)
-$$
-
-- Depende de la segunda derivada de $f$
-- Se puede reducir dividiendo en subintervalos
 
 ## 💻 Regla del Trapecio Compuesta
 
 $$
-\int_a^b f(x)\,dx \approx \frac{h}{2} \left( f(x_0) + 2\sum_{i=1}^{n-1} f(x_i) + f(x_n) \right)
+I \approx \frac{h}{2} \left[ f(x_0) + 2\sum_{i=1}^{n-1} f(x_i) + f(x_n) \right]
 $$
 
 con $h = \frac{b-a}{n}$
@@ -673,57 +704,124 @@ $$
 
 ---
 
-## 🟢 Regla de Simpson 1/3
+### 🟢 Regla de Simpson (orden 2)
 
-### 🔧 Aproximación
-
-Se interpola un polinomio cuadrático entre 3 puntos:
+Requiere 3 puntos: $a, c = \frac{a+b}{2}, b$
 
 $$
-\int_a^b f(x)\,dx \approx \frac{b-a}{6} [f(a) + 4f\left( \frac{a+b}{2} \right) + f(b)]
+I \approx \frac{b-a}{6} \left[f(a) + 4f(c) + f(b)\right]
 $$
 
-## 💻 Regla de Simpson 1/3 Compuesta
+🔹 **Error**:
+
+$$
+E_S = -\frac{(b-a)^5}{2880} f^{(4)}(\eta)
+$$
+
+## 💻 Regla de Simpson Compuesta
 
 Requiere **n par** subintervalos:
 
 $$
-\int_a^b f(x)\,dx \approx \frac{h}{3} \left[ f(x_0) + 4\sum_{\text{impares}} f(x_i) + 2\sum_{\text{pares}} f(x_i) + f(x_n) \right]
+I \approx \frac{h}{3} \left[ f(x_0) + 4\sum_{\text{impares}} f(x_i) + 2\sum_{\text{pares}} f(x_i) + f(x_n) \right]
 $$
 
-### ⚠️ Error
+con $h = \frac{b-a}{n}$
 
 $$
-E_S = -\frac{(b-a)^5}{180} f^{(4)}(\xi)
+E_S^{(comp)} = -\frac{(b-a) h^4}{180} f^{(4)}(\eta)
 $$
 
 - Mucho más preciso que el trapecio si $f$ es suave
-- Usa segunda y cuarta derivada
+- Tiene una precisión de tercer orden aún cuando usa sólo tres puntos, es decir, integra funciones hasta grado 3 de forma exacta
+
+---
+### 🟩 Casos con puntos no equiespaciados
+
+Si $h_i = x_{i+1} - x_i$ varía, se aplica la regla del trapecio individualmente en cada subintervalo:
+
+$$
+I \approx \sum_{i=0}^{n-1} \frac{h_i}{2} [f(x_i) + f(x_{i+1})]
+$$
+
+---
+## Tabla comparativa de Newton-Cotes
+
+
+| Método                 | **Fórmula del Método**                                                                                                                                                 | **Fórmula del Error Teórico**                                   | **Orden** |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- | --------- |
+| **$Trapecio$**    | $\frac{b-a}{2} \left[f(a) + f(b)\right]$                                                                                       | $\displaystyle E_T = -\frac{(b - a)^3}{12} f''(\xi)$            | $O(h^2)$  |
+| **$Simpson$**     | $\frac{b-a}{6} \left[f(a) + 4f\left(\frac{a+b}{2}\right) + f(b)\right]$                                                        | $\displaystyle E_S = -\frac{(b - a)^5}{2880} f^{(4)}(\xi)$      | $O(h^4)$  |
+| **$Trapecio_C$** | $\frac{h}{2} \left[ f(x_0) + 2\sum_{i=1}^{n-1} f(x_i) + f(x_n) \right]$                                 | $\displaystyle E_{T_c} = -\frac{(b - a) h^2}{12} f''(\xi)$      | $O(h^2)$  |
+| **$Simpson_C$**  | $\frac{h}{3} \left[ f(x_0) + 4\sum_{i=1,\,\text{impar}}^{n-1} f(x_i) + 2\sum_{i=2,\,\text{par}}^{n-2} f(x_i) + f(x_n) \right]$ | $\displaystyle E_{S_c} = -\frac{(b - a) h^4}{180} f^{(4)}(\xi)$ | $O(h^4)$  |
+
+Aclaracion: $h = \dfrac{b-a}{n}$
+Observaciones: 
+- Si la derivada correspondiente es pequeña o constante, el método será muy preciso incluso con pocos puntos.
+- $¿O(h^n)? \rightarrow$  A medida que $h$ se hace más pequeño, el error disminuye a una velocidad proporcional a $h^n$
+- Los errores se pueden reducir usando subintervalos mas pequeños
+
+---
+
+## 🔸 Extrapolación de Richardson
+
+Permite **mejorar una estimación $I(h)$** con otra a paso $h/2$, realizando un promedio ponderado entre ambas:
+
+$$
+I_R = \frac{4I(h/2) - I(h)}{3}
+$$
+
+🔹 Se aplica sobre integrales aproximadas por trapecio (o Simpson)
+
+🔹 Elimina el error de orden más bajo → mejora de $O(h^2)$ a $O(h^4)$
+
+---
+
+## 🟢 Integración de Romberg
+
+### 🔧 Idea
+
+Aplica Richardson **recursivamente** para construir una tabla triangular, calculandose por filas:
+
+$$
+I_{j,k} = \frac{4^{k-1} I_{j,k-1} - I_{j-1,k-1}}{4^{k-1} - 1}
+$$
+
+🔹 Avanza en niveles hasta que el cambio entre niveles cumpla:
+
+$$
+|I_{k,k} - I_{k,k-1}| < \varepsilon
+$$
+
+![alt text]({74F5467D-9273-4755-8554-F079AA94C050}.png)
 
 ---
 
 ## 🟢 Cuadratura de Gauss
+Las fórmulas de cuadratura de Gauss se basan en buscar valores de $a_i$ y $x_i$ de forma tal que la aproximacion sea exacta para polinomios de grado lo mas alto posible.
 
 ### 🔧 Objetivo
 
 Aproximar:
 
 $$
-\int_{-1}^{1} f(x)\,dx \approx \sum_{i=1}^{n} w_i f(x_i)
+\int_{-1}^{1} f(x)\,dx \approx \sum_{i=1}^{n} a_i f(x_i)
 $$
 
 donde:
 
 - $x_i$: raíces del polinomio de Legendre de grado $n$
-- $w_i$: pesos asociados
+- $a_i$: pesos asociados
 
-> Puede integrarse con exactitud polinomios de grado $2n-1$ con solo $n$ puntos.
+> Puede integrarse con exactitud polinomios de grado $2n-1$ con solo $n$ puntos si:
+> - La formula es interpolatoria
+> - Los nodos son las raíces del n-ésimo polinomio ortogonal en [a,b] (usamos polinomios de Legendre)
 
 ### 💡 Ventajas
 
-- Mucho más precisa que Newton-Cotes con pocos puntos
+<!-- - Mucho más precisa que Newton-Cotes con pocos puntos -->
 - No requiere que los nodos estén equiespaciados
-- Chapra y Burden recomiendan para integrales complicadas
+- Útiles para integrales complicadas
 
 ### 💻 Cambio de intervalo
 
@@ -733,33 +831,36 @@ $$
 \int_a^b f(x)\,dx = \frac{b-a}{2} \int_{-1}^{1} f\left( \frac{b-a}{2}x + \frac{a+b}{2} \right)\,dx
 $$
 
+### 💡 Ventajas y limitaciones
+
+| Ventajas                        | Limitaciones                                            |
+| ------------------------------- | ------------------------------------------------------- |
+| Alta precisión con pocos puntos | Se requieren los valores de $f(x)$ en nodos específicos |
+| Ideal para funciones suaves     | No útil si solo se tienen datos tabulados               |
+| Más eficiente que Newton-Cotes  | Difícil estimación del error                            |
+
+### Características
+- Su mayor ventaja es la eficiencia en el cálculo, el doble de rápido que las de Newton Cotes
+- Además permite calcular integrales con singularidades 
+- Una limitación de Cuadratura de Gauss es que debe evaluarse en puntos específicos, es decir que debemos conocer la función, lo cual muchas veces no ocurre cuando trabajamos con datos experimentales
+- Es difícil de calcular su error
+
+
 ### 📘 Tablas (para Gauss-Legendre)
 
 Para $n = 2$:
 
 $$
-x_1 = -\frac{1}{\sqrt{3}}, \quad x_2 = \frac{1}{\sqrt{3}} \quad\text{y}\quad w_1 = w_2 = 1
+x_1 = -\frac{1}{\sqrt{3}}, \quad x_2 = \frac{1}{\sqrt{3}} \quad\text{y}\quad a_1 = a_2 = 1
 $$
 
-Para $n = 4$, los nodos y pesos son fracciones con raíces cuadradas (ver tabla en apunte anterior).
+Para $n = 3$: 
+$$
+x_1 = -\sqrt{\frac{3}{5}}, \quad x_2 = 0, \quad x_3 = \sqrt{\frac{3}{5}} \quad\text{y}\quad a_1 =\frac{5}{9} , \quad a_2 = \frac{8}{9}, \quad a_3 = \frac{5}{9}
+$$
 
----
-
-## 📉 Comparativa de Métodos
-
-| Método             | Orden  | Nodos equiespaciados | Precisión relativa | Observaciones         |
-| ------------------ | ------ | -------------------- | ------------------ | --------------------- |
-| Trapecio simple    | 2      | ✅                   | Baja               | Sencillo              |
-| Trapecio compuesto | 2      | ✅                   | Media              | Mejora con n          |
-| Simpson 1/3        | 4      | ✅ (n par)           | Alta               | Muy usado             |
-| Simpson 3/8        | 4      | ✅ (n múltiplo de 3) | Similar a 1/3      | Poco más complejo     |
-| Gauss-Legendre     | $2n-1$ | ❌                   | Muy alta           | Nodos y pesos óptimos |
-
----
 
 ## 📌 Observaciones finales (Chapra/Burden)
 
 - A mayor grado del polinomio, mayor el riesgo de oscilaciones → usar con cuidado
-- Métodos compuestos (Simpson/Trapecio) son preferibles a globales
 - Cuadratura de Gauss es ideal cuando se busca **alta precisión con pocos puntos**
-- Siempre tener en cuenta el comportamiento de las derivadas al estimar el error
